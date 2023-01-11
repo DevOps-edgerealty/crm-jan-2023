@@ -9,7 +9,6 @@
 
                 <div class="col-lg-6">
                     <div class="card">
-
                         {{-- Apex Charts --}}
                         <div class="card-body" style="position: relative;">
                             <h4 class="card-title mb-4">Total Commission vs Leads Recieved</h4>
@@ -19,7 +18,6 @@
                         </div>
                         {{-- Apex Charts --}}
                     </div>
-
                 </div>
 
 

@@ -94,7 +94,7 @@ class Website_leadController extends Controller
         $this->data['agent'] = Users::where('status','1')->orderBy('name')->get();
 
 
-        $leads = website::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 );
+        $leads = website::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'));
 
         if($request->search != null){
             $leads->where('name', 'LIKE', "%{$request->search}%");
@@ -392,14 +392,11 @@ class Website_leadController extends Controller
         // get website lead record
         $leads = Website::find($id);
         if (!empty($leads)) {
-
             $leads->agent_id = $user_id;
             $leads->is_recycle = 0;
             $leads->lead_status = 5;
             $leads->save();
         }
-
-
 
 
         // create new lead detail and set below data
@@ -409,8 +406,6 @@ class Website_leadController extends Controller
         $leads_detail->lead_status = 5;
         $leads_detail->lead_description = "Lead Transfer From Recycle";
         $leads_detail->save();
-
-
 
         return Redirect::back()->with('message', 'Lead has Been Transferred Successfully.');
     }
@@ -430,25 +425,16 @@ class Website_leadController extends Controller
 
         $agentname = User::find($agent_id);
 
-
-
-
         $leads = Website::find($lead_id);
-
-
-
 
         if (!empty($leads)) {
 
             $leads->agent_id = $agent_id;
-
+            $leads_detail->is_recycle = 0;
             $leads->save();
         }
 
-
-
         $leads_detail = new Website_lead_detail();
-
 
         $leads_detail->agent_id = $user_id;
         $leads_detail->lead_id = $leads->id;

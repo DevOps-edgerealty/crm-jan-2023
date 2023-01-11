@@ -72,14 +72,14 @@ class LeadsController extends Controller
         if ( $user_id == '1') {
 
 
-            $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->orderby('created_at','DESC')->paginate(30);
+            $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'))->orderby('created_at','DESC')->paginate(30);
 
 
         }
         elseif( $user_id == '2')
         {
 
-            $leads = Leads::with(['users','lead_typess','lead_detailss'])->where( 'agent_id' , $id )->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->orderby('updated_at','DESC')->paginate(30);
+            $leads = Leads::with(['users','lead_typess','lead_detailss'])->where( 'agent_id' , $id )->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'))->orderby('updated_at','DESC')->paginate(30);
 
         }
 
@@ -92,18 +92,23 @@ class LeadsController extends Controller
         return view('leads.show', $this->data);
     }
 
+
+
+
+
+
+
     public function search(Request $request)
     {
 
-
         $this->data['lead_source'] = Leads_type::all();
 
-        $this->data['campaigns'] = Campaign::orderby('id', 'desc')->get();
+        $this->data['campaigns'] = Campaign::orderby('id', 'desc')->whereDate('created_at', '>', date('2022-12-17'))->get();
 
         $this->data['agent'] = Users::where('status','1')->orderBy('name')->get();
 
 
-        $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 );
+        $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'));
 
         if($request->search != null){
             $leads = $leads->where('full_name', 'LIKE', "%{$request->search}%");
@@ -113,7 +118,7 @@ class LeadsController extends Controller
             $leads = $leads->where('campaign_id', $request->campaigns);
         }
         if($request->lead_status != null){
-            $leads = $leads->where('lead_status', $request->lead_status);
+            $leads = $leads->where('lead_status', $request->lead_status)->whereDate('created_at', '>', date('2022-12-17'));
         }
         if($request->phone != null){
             $leads = $leads->where('phone', $request->phone);
@@ -137,7 +142,7 @@ class LeadsController extends Controller
 
         $leads = $leads->orderby('id','DESC');
 
-        $leads = $leads->paginate(30);
+        $leads = $leads->whereDate('created_at', '>', date('2022-12-17'))->paginate(30);
 
         $this->data['request'] = $request->all();
 
@@ -159,11 +164,9 @@ class LeadsController extends Controller
 
         $this->data['lead_source'] = Leads_type::all();
 
-
         $this->data['agent'] = Users::where('status','1')->orderBy('name')->get();
 
-
-        $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id' , $request->agent);
+        $leads = Leads::with(['users' , 'lead_typess', 'campaigns','lead_detailss' ])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id' , $request->agent)->whereDate('created_at', '>', date('2022-12-17'));
 
         if($request->search != null){
             $leads->where('full_name', 'LIKE', "%{$request->search}%");
@@ -946,7 +949,7 @@ class LeadsController extends Controller
 
                 $lead->lead_status = $request->lead_status;
                 $lead->is_closed = 0;
-                
+
                 $lead->save();
             }
 

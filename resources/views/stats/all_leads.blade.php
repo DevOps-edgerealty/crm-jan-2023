@@ -2,32 +2,33 @@
 
 
 <div class="col-lg-9">
-    <div class="card">
-
-    {{-- Apex Charts --}}
-    <div class="card-body" style="position: relative;">
-        <h4 class="">Overview Current Year with all Leads</h4>
-        <div id="chart_agent_stats" class="apex-charts" dir="ltr" style="max-width: 100%;  margin: 35px auto; opacity: 0.9;">
+    <div class="card" style="height: 460px !important;">
+        {{-- Apex Charts --}}
+        <div class="card-body" style="position: relative;">
+            <h4 class="">Overview Current Year with all Leads</h4>
+            <div id="chart_agent_stats" class="apex-charts" dir="ltr" style="max-width: 100%;  margin: 35px auto; opacity: 0.9;">
+            </div>
+            <div class="resize-triggers"><div class="expand-trigger"><div style="width: 713px; height: 443px;"></div></div><div class="contract-trigger"></div></div>
         </div>
-        <div class="resize-triggers"><div class="expand-trigger"><div style="width: 713px; height: 443px;"></div></div><div class="contract-trigger"></div></div>
-    </div>
-    {{-- Apex Charts --}}
+        {{-- Apex Charts --}}
 
-</div>
+    </div>
 </div>
 <div class="col-lg-3">
-    <div class="card">
+    <div class="card" style="height: 460px !important;">
         <div class="card-body">
             <h4>Details</h4>
             <div class="row mt-5">
                 <div class="col-sm-6">
-                    <p>Leads 2022</p>
+                    <p>Leads {{\Carbon\Carbon::now()->format('Y')}}</p>
                     {{-- {{var_dump($total_leads)}} --}}
-                    <h3>{{$total_leads}}</h3>
+                    <h3>{{$dashboard_total_leads_2023}}</h3>
                 </div>
                 <div class="col-sm-6">
-                    <p>Rate of Growth</p>
-                    <h3>{{ $rog }} %</h3>
+                    <p>Leads {{\Carbon\Carbon::now()->subYear()->format('Y')}}</p>
+                    <h3>{{$dashboard_total_leads_2022}}</h3>
+                    {{-- <p>Rate of Growth {{\Carbon\Carbon::now()->format('M, Y')}}</p>
+                    <h3>{{ $rog }} %</h3> --}}
                 </div>
             </div>
 
@@ -36,25 +37,25 @@
 
             <div class="row mt-5">
                 <div class="col-sm-6">
-                    <p>Leads 2021</p>
-                    <h3>{{$total_leads_2021}}</h3>
+                    <p>Portal Leads</p>
+                    <h3>{{$dashboard_portal_lead_count}}</h3>
                 </div>
                 <div class="col-sm-6">
                     <p>Campaign Leads</h3>
-                    <h3>{{$campaign_total}}</h3>
+                    <h3>{{$dashboard_campaign_lead_count}}</h3>
                 </div>
             </div>
 
             <div class="row mt-5">
                 <div class="col-sm-6">
                     <p>Website Leads</p>
-                    <h3>{{$website_total}}</h3>
+                    <h3>{{$dashboard_website_lead_count}}</h3>
                 </div>
                 <div class="col-sm-6">
-                    <p>Portal Leads</p>
-                    <h3>{{$property_total}}</h3>
+
                 </div>
             </div>
+            <p class="mt-3">The above values reflect only those on active leads</p>
         </div>
     </div>
 </div>

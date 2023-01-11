@@ -91,7 +91,7 @@
 
                         {{-- Apex Charts --}}
                         <div class="card-body" style="position: relative;">
-                            <h4 class="card-title mb-4">Total Commission</h4>
+                            <h4 class="card-title mb-4">Leads Received</h4>
                             <div id="chart_agent_stats_search" class="apex-charts" dir="ltr" style="max-width: 100%;  margin: 35px auto; opacity: 0.9;">
                             </div>
                             <div class="resize-triggers"><div class="expand-trigger"><div style="width: 713px; height: 443px;"></div></div><div class="contract-trigger"></div></div>
@@ -109,7 +109,7 @@
                             <div class="row mt-5">
                                 <div class="col-sm-12">
                                     <p>Total Leads Recieved</p>
-                                    <h5>{{ number_format($total_leads_final) }} </h5>
+                                    <h5>{{ number_format($dashboard_total_leads_2023) }} </h5>
                                 </div>
                             </div>
 
@@ -141,7 +141,7 @@
 
                         {{-- Apex Charts --}}
                         <div class="card-body" style="position: relative;">
-                            <h4 class="card-title mb-4">Leads Recieved</h4>
+                            <h4 class="card-title mb-4">Total Commission</h4>
                             <div id="chart_agent_stats" class="apex-charts" dir="ltr" style="max-width: 100%;  margin: 35px auto; opacity: 0.9;">
                             </div>
                             <div class="resize-triggers"><div class="expand-trigger"><div style="width: 713px; height: 443px;"></div></div><div class="contract-trigger"></div></div>

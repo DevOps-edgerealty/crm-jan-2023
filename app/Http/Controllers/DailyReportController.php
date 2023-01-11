@@ -41,7 +41,7 @@ class DailyReportController extends Controller
 
         if($user_type == 1)
         {
-            $fetch_data1 = Daily_report::with('daily_reports')->paginate(30);  //all reports
+            $fetch_data1 = Daily_report::with('daily_reports')->orderby('created_at','DESC')->paginate(30);  //all reports
 
             $fetch_data2 = Users::with('daily_reports')->where('user_type', '2')->where('status', '1')->orderby('name')->get(); //all users
 
@@ -64,7 +64,7 @@ class DailyReportController extends Controller
 
         if($user_type == 2)
         {
-            $fetch_data1 = Daily_report::with('daily_reports')->where('agent_id', $user_id)->get();  //all reports
+            $fetch_data1 = Daily_report::with('daily_reports')->orderby('created_at','DESC')->where('agent_id', $user_id)->get();  //all reports
 
             $fetch_data2 = Users::with('daily_reports')->where('user_type', '2')->where('status', '1')->orderby('name')->get(); //all users
 

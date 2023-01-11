@@ -187,7 +187,7 @@
                             <div class="row mt-5">
                                 <div class="col-sm-6">
                                     <p>Number of Leads</p>
-                                    <h5>{{ number_format($total_leads_final) }} </h5>
+                                    <h5>{{ number_format($dashboard_total_leads_2023) }} </h5>
                                 </div>
                                 <div class="col-sm-6">
                                     <p>Total Rent/Sale Value</p>
@@ -206,7 +206,7 @@
 
                                 <div class="col-sm-6">
                                     <p>Campaign Leads</p>
-                                    <h5>{{ number_format($campaign_total) }} </h5>
+                                    <h5>{{ number_format($dashboard_campaign_lead_count) }} </h5>
                                 </div>
                             </div>
 
@@ -215,12 +215,12 @@
                             <div class="row mt-5">
                                 <div class="col-sm-6">
                                     <p>Portal Leads</p>
-                                    <h5>{{ number_format($portal_total) }} </h5>
+                                    <h5>{{ number_format($dashboard_portal_lead_count) }} </h5>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <p>Website Leads</p>
-                                    <h5>{{ number_format($website_total) }} </h5>
+                                    <h5>{{ number_format($dashboard_website_lead_count) }} </h5>
                                 </div>
                             </div>
 

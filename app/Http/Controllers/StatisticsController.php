@@ -40,20 +40,73 @@ class StatisticsController extends Controller
 
     public function index()
     {
+        /**
+         * Get the type of user and the authenticated user's ID
+         */
+
         $user_id = Auth::user()->user_type;
 
         $id = Auth::user()->id;
-
 
         $this->data['agents'] = Users::where('status','1')->where('user_type', '2')->get();
 
 
 
+
+
+        /**
+         * Lead count of each lead categor from December 17th onwards
+         *
+         */
+        $dashboard_campaign_lead_count = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2023 = $dashboard_campaign_lead_count + $dashboard_portal_lead_count + $dashboard_website_lead_count;
+
+        $this->data['dashboard_campaign_lead_count'] = $dashboard_campaign_lead_count;
+
+        $this->data['dashboard_portal_lead_count'] = $dashboard_portal_lead_count;
+
+        $this->data['dashboard_website_lead_count'] = $dashboard_website_lead_count;
+
+        $this->data['dashboard_total_leads_2023'] = $dashboard_total_leads_2023;
+
+
+
+
+        /**
+         * Total leads of 2022 (updated)
+         *
+         */
+        $dashboard_campaign_lead_count_2022 = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count_2022 = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count_2022 = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2022 = $dashboard_campaign_lead_count_2022 + $dashboard_portal_lead_count_2022 + $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_campaign_lead_count_2022'] = $dashboard_campaign_lead_count_2022;
+
+        $this->data['dashboard_portal_lead_count_2022'] = $dashboard_portal_lead_count_2022;
+
+        $this->data['dashboard_website_lead_count_2022'] = $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_total_leads_2022'] = $dashboard_total_leads_2022;
+
+
+
+
+
         /**
              *
-             * All Leads for the year 2022
+             * All Leads for the year 2023 (current year)
              *
              */
+
             // a count to loop through 12 months in a year
             $count = 0;
 
@@ -64,13 +117,13 @@ class StatisticsController extends Controller
             $campaign_leads_pre = [];
             $portal_leads_pre = [];
             $website_leads_pre = [];
-            $total_income_pre = [];
+            $total_income_pre = [];  //an array for total income
 
             // grab the sum of all the leads per annum
-            $campaign_total = 0;
-            $portal_total = 0;
-            $website_total = 0;
-            $total_revenue = 0;
+            $campaign_total_per_annum = 0;
+            $portal_total_per_annum = 0;
+            $website_total_per_annum = 0;
+            $total_revenue_per_annum = 0;  //an array for total revenue
 
             $date = Carbon::now();
             $year = $date->year;
@@ -78,39 +131,49 @@ class StatisticsController extends Controller
             while($count <= 11)
             {
                 try {
+                    /**
+                     * Read all campaign leads per month and insert
+                     * it into array while summing up the count
+                     */
                     $result1 = Leads::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
-                    ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
-                    ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date($year))
-                    ->count();
-                $campaign_leads_pre[$count] = $result1;
-                $campaign_total = $campaign_total + $result1;
+                        ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
+                        ->whereMonth('created_at', date($count+1))
+                        ->whereYear('created_at', date($year))
+                        ->count();
+                    $campaign_leads_pre[$count] = $result1;
+                    $campaign_total_per_annum = $campaign_total_per_annum + $result1;  //----sum of the leads
 
 
-                $result2 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
-                    ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
-                    ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date($year))
-                    ->count();
-                $portal_leads_pre[$count] = $result2;
-                $portal_total = $portal_total + $result2;
+                    /**
+                     * Read all Portal_leads leads per month and insert
+                     * it into array while summing up the count
+                     */
+                    $result2 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
+                        ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
+                        ->whereMonth('created_at', date($count+1))
+                        ->whereYear('created_at', date($year))
+                        ->count();
+                    $portal_leads_pre[$count] = $result2;
+                    $portal_total_per_annum = $portal_total_per_annum + $result2;  //----sum of the leads
 
-                $result3 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
-                    ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
-                    ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date($year))
-                    ->count();
-                $website_leads_pre[$count] = $result3;
-                $website_total = $website_total + $result3;
+
+
+                    /**
+                     * Read all Website leads per month and insert
+                     * it into array while summing up the count
+                     */
+                    $result3 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
+                        ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
+                        ->whereMonth('created_at', date($count+1))
+                        ->whereYear('created_at', date($year))
+                        ->count();
+                    $website_leads_pre[$count] = $result3;
+                    $website_total_per_annum = $website_total_per_annum + $result3;  //----sum of the leads
 
                 } catch (\Exception $e) {
                     $this->data['error'] = $e->getMessage();
-                    $this->data['error_msg'] = 'Oh! We encountered an error. Please contact the administrator.';
-
+                    $this->data['error_msg'] = 'Oh! We encountered an error. Error at - gathering leads for current year within the loop of reading leads per month';
                 }
-
-
-
 
 
                 try {
@@ -118,7 +181,7 @@ class StatisticsController extends Controller
                     $total_rent_value_company = Leader_board_detail::where('is_trash', null)->whereMonth('created_at', date($count+1))->whereYear('created_at', date($year))->sum('rent_value');
 
                     $total_income = $total_sale_value_company + $total_rent_value_company;
-                    $total_revenue = $total_revenue + $total_income;
+                    $total_revenue = $total_revenue_per_annum + $total_income;
                     $total_income_pre[$count] = $total_income;
 
                 }catch (\Exception $e) {
@@ -127,41 +190,28 @@ class StatisticsController extends Controller
 
                     return view('home', $this->data);
                 }
-
-
                 $count = $count + 1;
-            }
-
-                // dd($total_income_pre);
+            }//---------ending of while loop for each month------------------//
 
 
 
             $campaign_leads = [];
             foreach ($campaign_leads_pre as $lead)
             {
-                // if ($lead != 0)
-                // {
-                    array_push($campaign_leads, $lead);
-                // }
-
+                array_push($campaign_leads, $lead);
             }
+
 
             $portal_leads = [];
             foreach ($portal_leads_pre as $lead)
             {
-                // if ($lead != 0)
-                // {
-                    array_push($portal_leads, $lead);
-                // }
+                array_push($portal_leads, $lead);
             }
 
             $website_leads = [];
             foreach ($website_leads_pre as $lead)
             {
-                // if ($lead != 0)
-                // {
-                    array_push($website_leads, $lead);
-                // }
+                array_push($website_leads, $lead);
             }
 
             $total_income_company = [];
@@ -224,19 +274,19 @@ class StatisticsController extends Controller
                 $result1 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                     ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                     ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date('2021'))
+                    ->whereYear('created_at', date('2022'))
                     ->count();
 
                 $result2 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                     ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                     ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date('2021'))
+                    ->whereYear('created_at', date('2022'))
                     ->count();
 
                 $result3 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                     ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                     ->whereMonth('created_at', date($count+1))
-                    ->whereYear('created_at', date('2021'))
+                    ->whereYear('created_at', date('2022'))
                     ->count();
 
                 $cLast_year = $cLast_year + $result1;
@@ -245,9 +295,10 @@ class StatisticsController extends Controller
                 $count = $count + 1;
             }
 
-            $total_leads_2021 = ($cLast_year + $pLast_year + $wLast_year);
-            $total_leads_2022 = ($campaign_total + $portal_total + $website_total);
+            $total_leads_2022 = ($cLast_year + $pLast_year + $wLast_year);
+            $total_leads_2023 = ($campaign_total_per_annum + $portal_total_per_annum + $website_total_per_annum);
 
+            // dd($total_leads_2023);
 
 
 
@@ -257,10 +308,7 @@ class StatisticsController extends Controller
              * Rate of Growth
              *
              */
-            $rog = $total_leads_2021 == 0 ? 0 : (($total_leads_2022 - $total_leads_2021) /$total_leads_2021) * 100;
-
-
-
+            $rog = $total_leads_2022 == 0 ? 0 : (($total_leads_2023 - $total_leads_2022) /$total_leads_2022) * 100;
 
 
 
@@ -272,26 +320,15 @@ class StatisticsController extends Controller
             // dd($total_income_distribution_company);
 
 
-
-
-
-
-
-
-
-
-
-
-
             $this->data['campaign_leads'] = $campaign_leads;
             $this->data['portal_leads'] = $portal_leads;
             $this->data['website_leads'] = $website_leads;
 
-            $this->data['campaign_total'] = $campaign_total;
-            $this->data['property_total'] = $portal_total;
-            $this->data['website_total'] = $website_total;
+            $this->data['campaign_total'] = $campaign_total_per_annum;
+            $this->data['property_total'] = $portal_total_per_annum;
+            $this->data['website_total'] = $website_total_per_annum;
 
-            $this->data['total_leads'] = ($campaign_total + $portal_total + $website_total);
+            $this->data['total_leads'] = ($campaign_total_per_annum + $portal_total_per_annum + $website_total_per_annum);
             $this->data['total_leads_2021'] = ($cLast_year + $pLast_year + $wLast_year);
 
             $this->data['rog'] = round($rog, 2);
@@ -300,6 +337,18 @@ class StatisticsController extends Controller
 
         return view('stats.show', $this->data);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -461,12 +510,12 @@ class StatisticsController extends Controller
 
 
         $leader_board = Leader_board_detail::select('lead_source', 'net_commission')
-        ->where('lead_source', '!=', 'null')
-        ->selectRaw('COUNT(*) AS count')
-        ->groupBy('lead_source')
-        ->orderByDesc('count')
-        ->whereMonth('leader_board_detail.created_at', $month)
-        ->get();
+            ->where('lead_source', '!=', 'null')
+            ->selectRaw('COUNT(*) AS count')
+            ->groupBy('lead_source')
+            ->orderByDesc('count')
+            ->whereMonth('leader_board_detail.created_at', $month)
+            ->get();
 
         // dd($leader_board);
         // select lead_source,COUNT(lead_source) AS ValueFrequency from leader_board_detail group by lead_source order by ValueFrequency DESC
@@ -547,14 +596,12 @@ class StatisticsController extends Controller
 
 
         $leader_board = Leader_board_detail::select('lead_source')
-        ->where('lead_source', '!=', 'null')
-        ->selectRaw('COUNT(*) AS count')
-        ->groupBy('lead_source')
-        ->orderByDesc('count')
-        ->whereMonth('leader_board_detail.created_at', $month)
-        ->get();
-
-        // dd($leader_board);
+            ->where('lead_source', '!=', 'null')
+            ->selectRaw('COUNT(*) AS count')
+            ->groupBy('lead_source')
+            ->orderByDesc('count')
+            ->whereMonth('leader_board_detail.created_at', $month)
+            ->get();
 
 
         $data_0 = [];
@@ -572,7 +619,6 @@ class StatisticsController extends Controller
         foreach($data_2 as $data)
         {
             $leader_board_2 = Leader_board_detail::with('leader_details')->where('lead_source', $data)->whereMonth('created_at', $month)->get();
-            // dd($leader_board_2);
 
             $total_comm = 0;
 
@@ -639,7 +685,56 @@ class StatisticsController extends Controller
      */
     public function search(Request $request)
     {
+
+
         $this->data['agents'] = Users::where('status','1')->where('user_type', '2')->get();
+
+
+
+
+        /**
+         * Lead count of each lead categor from December 17th onwards
+         *
+         */
+        $dashboard_campaign_lead_count = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->where('agent_id', $request->agent)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->where('agent_id', $request->agent)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->where('agent_id', $request->agent)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2023 = $dashboard_campaign_lead_count + $dashboard_portal_lead_count + $dashboard_website_lead_count;
+
+        $this->data['dashboard_campaign_lead_count'] = $dashboard_campaign_lead_count;
+
+        $this->data['dashboard_portal_lead_count'] = $dashboard_portal_lead_count;
+
+        $this->data['dashboard_website_lead_count'] = $dashboard_website_lead_count;
+
+        $this->data['dashboard_total_leads_2023'] = $dashboard_total_leads_2023;
+
+
+
+
+        /**
+         * Total leads of 2022 (updated)
+         *
+         */
+        $dashboard_campaign_lead_count_2022 = Leads::where('agent_id', $request->agent)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count_2022 = Property_lead::where('agent_id', $request->agent)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count_2022 = Website::where('agent_id', $request->agent)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2022 = $dashboard_campaign_lead_count_2022 + $dashboard_portal_lead_count_2022 + $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_campaign_lead_count_2022'] = $dashboard_campaign_lead_count_2022;
+
+        $this->data['dashboard_portal_lead_count_2022'] = $dashboard_portal_lead_count_2022;
+
+        $this->data['dashboard_website_lead_count_2022'] = $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_total_leads_2022'] = $dashboard_total_leads_2022;
+
 
 
 
@@ -666,7 +761,7 @@ class StatisticsController extends Controller
                     $id = $request->agent;
                     /**
                      *
-                     * All Leads for the year 2022
+                     * All Leads for the year 2023
                      *
                      */
                     // a count to loop through 12 months in a year
@@ -687,13 +782,15 @@ class StatisticsController extends Controller
                     $portal_total = 0;
                     $website_total = 0;
 
+                    $year = Carbon::now()->year;
+
                     while($count <= 11)
                     {
                         try {
                             $result1 = Leads::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $count_c = $count + 1;
                         $campaign_obj_1[$count_c] = $result1;
@@ -704,7 +801,7 @@ class StatisticsController extends Controller
                         $result2 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $portal_obj_2[$count_c] = $result2;
                         $portal_leads_pre[$count] = $result2;
@@ -713,7 +810,7 @@ class StatisticsController extends Controller
                         $result3 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $website_obj_3[$count_c] = $result3;
                         $website_leads_pre[$count] = $result3;
@@ -728,9 +825,6 @@ class StatisticsController extends Controller
 
                         $count = $count + 1;
                     }
-
-                        // dd($campaign_obj_1, $website_obj_3, $portal_obj_2);
-
 
 
 
@@ -829,19 +923,19 @@ class StatisticsController extends Controller
                         $result1 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $result2 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $result3 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $cLast_year = $cLast_year + $result1;
@@ -923,7 +1017,7 @@ class StatisticsController extends Controller
                             $result1 = Leads::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $campaign_leads_pre[$count] = $result1;
                         $campaign_total = $campaign_total + $result1;
@@ -932,7 +1026,7 @@ class StatisticsController extends Controller
                         $result2 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $portal_leads_pre[$count] = $result2;
                         $portal_total = $portal_total + $result2;
@@ -940,7 +1034,7 @@ class StatisticsController extends Controller
                         $result3 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $website_leads_pre[$count] = $result3;
                         $website_total = $website_total + $result3;
@@ -1051,19 +1145,19 @@ class StatisticsController extends Controller
                         $result1 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $result2 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $result3 = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $cLast_year = $cLast_year + $result1;
@@ -1125,7 +1219,7 @@ class StatisticsController extends Controller
 
                     /**
                      *
-                     * All Leads for the year 2022 by agent
+                     * All Leads for the year 2023 by agent
                      *
                      */
                     // a count to loop through 12 months in a year
@@ -1144,7 +1238,7 @@ class StatisticsController extends Controller
                             $result1 = Leads::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $campaign_leads_pre[$count] = $result1;
                         $campaign_total = $campaign_total + $result1;
@@ -1202,7 +1296,7 @@ class StatisticsController extends Controller
                         $result1 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $cLast_year = $cLast_year + $result1;
@@ -1246,7 +1340,7 @@ class StatisticsController extends Controller
                         $result1 = Leads::where('is_temporary', 0)->where('is_closed', 0)
                         ->where('is_trash', 0)->where('is_recycle', 0)
                         ->whereMonth('created_at', date($count+1))
-                        ->whereYear('created_at', date('2022'))
+                        ->whereYear('created_at', date('2023'))
                         ->count();
                         $campaign_leads_pre[$count] = $result1;
                         $campaign_total = $campaign_total + $result1;
@@ -1273,7 +1367,7 @@ class StatisticsController extends Controller
                         $result = Leads::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $Last_year = $Last_year + $result;
@@ -1335,7 +1429,7 @@ class StatisticsController extends Controller
                         $result = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $leads_pre[$count] = $result;
                         $total = $total + $result;
@@ -1391,7 +1485,7 @@ class StatisticsController extends Controller
                         $result = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $last_year = $last_year + $result;
@@ -1435,7 +1529,7 @@ class StatisticsController extends Controller
                         $result2 = Property_lead::where('is_temporary', 0)->where('is_closed', 0)
                         ->where('is_trash', 0)->where('is_recycle', 0)
                         ->whereMonth('created_at', date($count+1))
-                        ->whereYear('created_at', date('2022'))
+                        ->whereYear('created_at', date('2023'))
                         ->count();
                         $portal_leads_pre[$count] = $result2;
                         $portal_total = $portal_total + $result2;
@@ -1464,7 +1558,7 @@ class StatisticsController extends Controller
                         $result = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $Last_year = $Last_year + $result;
@@ -1528,7 +1622,7 @@ class StatisticsController extends Controller
                         $result = Website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2022'))
+                            ->whereYear('created_at', date('2023'))
                             ->count();
                         $leads_pre[$count] = $result;
                         $total = $total + $result;
@@ -1584,7 +1678,7 @@ class StatisticsController extends Controller
                         $result = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->where('agent_id', $id)
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $last_year = $last_year + $result;
@@ -1633,7 +1727,7 @@ class StatisticsController extends Controller
                         $result3 = website::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                         ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                         ->whereMonth('created_at', date($count+1))
-                        ->whereYear('created_at', date('2022'))
+                        ->whereYear('created_at', date('2023'))
                         ->count();
                         $website_leads_pre[$count] = $result3;
                         $website_total = $website_total + $result3;
@@ -1662,7 +1756,7 @@ class StatisticsController extends Controller
                         $result = Property_lead::where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )
                             ->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )
                             ->whereMonth('created_at', date($count+1))
-                            ->whereYear('created_at', date('2021'))
+                            ->whereYear('created_at', date('2022'))
                             ->count();
 
                         $Last_year = $Last_year + $result;
@@ -1747,22 +1841,9 @@ class StatisticsController extends Controller
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
         return view('stats.show', $this->data);
-
-
     }
+
 
 
 
@@ -1773,9 +1854,64 @@ class StatisticsController extends Controller
 
     public function lead_vs_income()
     {
+
+
+
+
+        /**
+         * Lead count of each lead categor from December 17th onwards
+         *
+         */
+        $dashboard_campaign_lead_count = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2023 = $dashboard_campaign_lead_count + $dashboard_portal_lead_count + $dashboard_website_lead_count;
+
+        $this->data['dashboard_campaign_lead_count'] = $dashboard_campaign_lead_count;
+
+        $this->data['dashboard_portal_lead_count'] = $dashboard_portal_lead_count;
+
+        $this->data['dashboard_website_lead_count'] = $dashboard_website_lead_count;
+
+        $this->data['dashboard_total_leads_2023'] = $dashboard_total_leads_2023;
+
+
+
+
+        /**
+         * Total leads of 2022 (updated)
+         *
+         */
+        $dashboard_campaign_lead_count_2022 = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count_2022 = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count_2022 = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2022 = $dashboard_campaign_lead_count_2022 + $dashboard_portal_lead_count_2022 + $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_campaign_lead_count_2022'] = $dashboard_campaign_lead_count_2022;
+
+        $this->data['dashboard_portal_lead_count_2022'] = $dashboard_portal_lead_count_2022;
+
+        $this->data['dashboard_website_lead_count_2022'] = $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_total_leads_2022'] = $dashboard_total_leads_2022;
+
+
+
+
+
+
+
+
+
         /**
              *
-             * All Leads for the year 2022
+             * All Leads for the year 2023
              *
              */
             // a count to loop through 12 months in a year
@@ -1873,6 +2009,7 @@ class StatisticsController extends Controller
 
                     return view('home', $this->data);
                 }
+
 
 
 
@@ -2033,8 +2170,62 @@ class StatisticsController extends Controller
 
 
 
+
+
+
+
     public function lead_vs_income_search(Request $request)
     {
+
+
+
+
+        /**
+         * Lead count of each lead categor from December 17th onwards
+         *
+         */
+        $dashboard_campaign_lead_count = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '>', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2023 = $dashboard_campaign_lead_count + $dashboard_portal_lead_count + $dashboard_website_lead_count;
+
+        $this->data['dashboard_campaign_lead_count'] = $dashboard_campaign_lead_count;
+
+        $this->data['dashboard_portal_lead_count'] = $dashboard_portal_lead_count;
+
+        $this->data['dashboard_website_lead_count'] = $dashboard_website_lead_count;
+
+        $this->data['dashboard_total_leads_2023'] = $dashboard_total_leads_2023;
+
+
+
+
+        /**
+         * Total leads of 2022 (updated)
+         *
+         */
+        $dashboard_campaign_lead_count_2022 = Leads::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_portal_lead_count_2022 = Property_lead::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_website_lead_count_2022 = Website::where('is_recycle', 0)->where('is_trash', 0)->where('is_closed', 0)->whereDate('created_at', '<', date('2022-12-17'))->count();
+
+        $dashboard_total_leads_2022 = $dashboard_campaign_lead_count_2022 + $dashboard_portal_lead_count_2022 + $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_campaign_lead_count_2022'] = $dashboard_campaign_lead_count_2022;
+
+        $this->data['dashboard_portal_lead_count_2022'] = $dashboard_portal_lead_count_2022;
+
+        $this->data['dashboard_website_lead_count_2022'] = $dashboard_website_lead_count_2022;
+
+        $this->data['dashboard_total_leads_2022'] = $dashboard_total_leads_2022;
+
+
+
+
         $var2 = Leaderboard::with('leader_detail')->where('agent_id', $request->agent)->where('status', 1)->get();
 
         $var3 = Leaderboard::where('agent_id', $request->agent)->get();
@@ -2138,7 +2329,7 @@ class StatisticsController extends Controller
 
         /**
              *
-             * All Leads for the year 2022
+             * All Leads for the year 2023
              *
              */
             // a count to loop through 12 months in a year
@@ -2170,6 +2361,7 @@ class StatisticsController extends Controller
 
             $date = Carbon::now();
             $year = $date->year;
+            // dd($website_total);
 
             while($count <= 11)
             {
@@ -2259,8 +2451,7 @@ class StatisticsController extends Controller
                 $count = $count + 1;
             }
 
-
-                // dd($total_income_pre);
+            // dd($total_leads_final);
 
 
 
@@ -2298,6 +2489,7 @@ class StatisticsController extends Controller
             {
                 array_push($total_leads_overall, $data);
             }
+
 
 
             $total_income_company = [];
@@ -2532,6 +2724,7 @@ class StatisticsController extends Controller
 
                 $count = $count + 1;
             }
+
 
 
                 // dd($total_income_pre);

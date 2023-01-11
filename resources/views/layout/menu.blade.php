@@ -136,10 +136,10 @@
                                 <i class="bx bx-trash me-2"></i>
                                 My Closed Deals
                             </a>
-                            <a href="{{URL('all_recycle')}}" class="dropdown-item fw-bold " key="t-chat" style="color: #737373;">
+                            {{-- <a href="{{URL('all_recycle')}}" class="dropdown-item fw-bold " key="t-chat" style="color: #737373;">
                                 <i class="bx bx-trash me-2"></i>
                                 Recycled Leads
-                            </a>
+                            </a> --}}
 
                         </div>
                     </li>

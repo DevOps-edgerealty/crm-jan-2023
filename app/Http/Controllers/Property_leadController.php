@@ -48,14 +48,14 @@ class Property_leadController extends Controller
         if ( $user_id == '1') {
 
 
-            $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->orderby('id','DESC')->paginate(30);
+            $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'))->orderby('id','DESC')->paginate(30);
 
 
         }
         elseif( $user_id == '2')
         {
 
-            $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'agent_id' , $id   )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->orderby('id','DESC')->paginate(30);
+            $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'agent_id' , $id   )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'))->orderby('id','DESC')->paginate(30);
 
         }
 
@@ -104,7 +104,7 @@ class Property_leadController extends Controller
         $this->data['agent'] = Users::where('status','1')->orderBy('name')->get();
 
 
-        $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 );
+        $leads = Property_lead::with(['users','lead_detailss'])->where( 'is_temporary' , 0 )->where( 'is_closed' , 0 )->where( 'is_trash' , 0 )->where( 'is_recycle' , 0 )->whereDate('created_at', '>', date('2022-12-17'));
 
         if($request->search != null){
             $leads->where('name', 'LIKE', "%{$request->search}%");

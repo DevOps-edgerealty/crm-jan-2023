@@ -49,39 +49,6 @@
 
 
 
-
-
-
-
-
-
-
-
-                        <!-- start page title -->
-                        {{-- <div class="row">
-                            <div class="col-12">
-                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h3>
-                                        Statistics
-                                    </h3>
-
-                                    <div class="page-title-right">
-                                        <ol class="breadcrumb m-0">
-                                            <li class="breadcrumb-item"><a href="{{URL('')}}">Dashboard</a></li>
-                                            <li class="breadcrumb-item active">Statistics</li>
-                                            <li class="breadcrumb-item active">Overview</li>
-                                        </ol>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div> --}}
-                        <!-- end page title -->
-
-
-
-
-
                         {{-- Menu-bar --}}
                         @include('stats.menu_bar')
                         {{-- /Menu-bar --}}
@@ -123,14 +90,8 @@
                                                     {{-- Desktop responsive --}}
                                                     <div class="d-none d-md-block d-lg-block ">
                                                         <div class="d-flex justify-content-center mx-auto">
-                                                            <div class="col-md-3 my-2 mx-2 ">
-                                                                {{-- <input type="text" class="form-control" id="autoSizingInput" placeholder="Jane Doe"> --}}
-                                                                {{-- <form id="IdName" action="/" enctype="multipart/form-data" method="GET"> --}}
-
-
-
+                                                            {{-- <div class="col-md-3 my-2 mx-2 ">
                                                                 <select class="form-select form-control" id="autoSizingSelect" name="lead_type">
-                                                                    {{-- <select class="form-select form-control" id="autoSizingSelect" name="lead_type" onchange="IdName.submit()"> --}}
                                                                     <option >Choose a Lead Type...</option>
                                                                     @if (isset($request))
                                                                         @if ($request->lead_type == '1')
@@ -162,16 +123,14 @@
                                                                         <option value="3">Property Leads</option>
                                                                         <option value="4">Website Leads</option>
                                                                     @endif
-
-
-
                                                                 </select>
-                                                                {{-- </form> --}}
-                                                            </div>
+                                                                </form>
+                                                            </div> --}}
 
 
 
                                                             <div class="col-md-3 my-2 mx-2">
+                                                                <input value="1" name="lead_type" hidden>
                                                                 <select class="form-select form-control" id="autoSizingSelect" name="agent">
                                                                     <option value="">Choose Agent...</option>
                                                                     @if($agents)
